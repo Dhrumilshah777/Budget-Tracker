@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Budget Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    p {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    table {
+      width: 100%;
+      background-color: white;
+      margin-top: 20px;
+      border-collapse: collapse;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    th,
+    td {
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    td button {
+      background-color: #dc3545;
+    }
+
+    td button:hover {
+      background-color: #a71d2a;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .error {
+      color: red;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>Budget Tracker</h1>
+
+    <label for="">Budget :</label>
+    <input type="text" id="userBudgetAmount" placeholder="Enter amount">
+    <p id="userTotalBudget_error" class="error"></p>
+    <button id="userBudgetBtn">Add Budget</button>
+
+    <br><br>
+
+    <label for="">Expense Title :</label>
+    <input type="text" id="userExpenseTitle" placeholder="Expense title">
+    <p id="userExpenseTitle_para" class="error"></p>
+
+    <label for="">Amount : </label>
+    <input type="text" id="userExpenseAmount" placeholder="Enter Expense Amount">
+    <p id="userExpenseAmount_para" class="error"></p>
+    <button id="addExpenseBtn">Add Expense</button>
+
+    <p id="totalBudgetDisplay" style="font-weight: bold; margin-top: 20px;"></p>
+    <p id="remainingAmountDisplay" style="font-weight: bold;"></p> <!-- ✅ Added here -->
+
+    <table border="1" cellspacing="2px" cellpadding="10px">
+      <tr>
+        <th>Expense name</th>
+        <th>Amount</th>
+        <th>Action</th>
+      </tr>
+    </table>
+  </div>
+
+  <script>
+    let userBudgetAmount = document.getElementById("userBudgetAmount");
+    let userBudgetBtn = document.getElementById("userBudgetBtn");
+    let userTotalBudget_error = document.getElementById("userTotalBudget_error");
+    let totalBudgetDisplay = document.getElementById("totalBudgetDisplay");
+    let remainingAmountDisplay = document.getElementById("remainingAmountDisplay");
+
+    let userExpenseTitle = document.getElementById("userExpenseTitle");
+    let userExpenseAmount = document.getElementById("userExpenseAmount");
+    let userExpenseTitle_para = document.getElementById("userExpenseTitle_para");
+    let userExpenseAmount_para = document.getElementById("userExpenseAmount_para");
+    let addExpenseBtn = document.getElementById("addExpenseBtn");
+
+    let totalBudget = 0;
+    let totalExpenses = 0;
+
+    userBudgetBtn.addEventListener("click", () => {
+      let userBudgetAmountValue = userBudgetAmount.value.trim();
+      let isValid = true;
+
+      if (userBudgetAmountValue == "") {
+        userTotalBudget_error.innerText = "Enter Amount";
+        isValid = false;
+      } else if (!/^[0-9]+$/.test(userBudgetAmountValue)) {
+        userTotalBudget_error.innerText = "Only numbers are allowed";
+        isValid = false;
+      } else if (parseInt(userBudgetAmountValue) < 1000) {
+        userTotalBudget_error.innerText = "Budget must be more than or equal to 1000";
+        isValid = false;
+      } else {
+        userTotalBudget_error.innerText = "";
+      }
+
+      if (isValid) {
+        totalBudget = parseInt(userBudgetAmountValue);
+        totalExpenses = 0; // Reset expenses when new budget is added
+        totalBudgetDisplay.innerText = `Total Budget : ₹${totalBudget}`;
+        remainingAmountDisplay.innerText = `Remaining amount : ₹${totalBudget - totalExpenses}`;
+
+        // Clear any old expenses from the table
+        document.querySelectorAll("table tr:not(:first-child)").forEach(row => row.remove());
+      }
+
+      userBudgetAmount.value = "";
+    });
+
+    addExpenseBtn.addEventListener("click", () => {
+      let userExpenseTitleValue = userExpenseTitle.value.trim();
+      let userExpenseAmountValue = userExpenseAmount.value.trim();
+
+      let isValid = true;
+
+      if (userExpenseTitleValue === "") {
+        userExpenseTitle_para.innerText = "Enter title";
+        isValid = false;
+      } else {
+        userExpenseTitle_para.innerText = "";
+      }
+
+      if (userExpenseAmountValue === "") {
+        userExpenseAmount_para.innerText = "Enter amount";
+        isValid = false;
+      } else if (!/^[0-9]+$/.test(userExpenseAmountValue)) {
+        userExpenseAmount_para.innerText = "Only numbers are allowed";
+        isValid = false;
+      } else {
+        userExpenseAmount_para.innerText = "";
+      }
+
+      if (isValid) {
+        let expenseAmount = parseInt(userExpenseAmountValue);
+        totalExpenses += expenseAmount;
+
+        let tr = document.createElement("tr");
+
+        let td1 = document.createElement("td");
+        td1.innerText = userExpenseTitleValue;
+
+        let td2 = document.createElement("td");
+        td2.innerText = `₹${expenseAmount}`;
+
+        let td3 = document.createElement("td");
+        let deleteBtn = document.createElement("button");
+        deleteBtn.innerText = "Delete";
+        deleteBtn.onclick = function () {
+          totalExpenses -= expenseAmount;
+          remainingAmountDisplay.innerText = `Remaining amount : ₹${totalBudget - totalExpenses}`;
+          this.closest('tr').remove();
+        };
+        td3.appendChild(deleteBtn);
+
+        tr.appendChild(td1);
+        tr.appendChild(td2);
+        tr.appendChild(td3);
+
+        document.querySelector("table").appendChild(tr);
+
+        remainingAmountDisplay.innerText = `Remaining amount : ₹${totalBudget - totalExpenses}`;i
+
+        userExpenseTitle.value = "";
+        userExpenseAmount.value = "";
+      }
+    });
+  </script>
+
+</body>
+
+</html>
